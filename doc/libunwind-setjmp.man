@@ -1,5 +1,5 @@
 '\" t
-.\" Manual page created with latex2man on Thu Aug 16 09:44:44 MDT 2007
+.\" Manual page created with latex2man on Fri Feb 24 11:00:51 EST 2012
 .\" NOTE: This file is generated, DO NOT EDIT.
 .de Vb
 .ft CW
@@ -10,7 +10,7 @@
 
 .fi
 ..
-.TH "LIBUNWIND\-SETJMP" "3" "16 August 2007" "Programming Library " "Programming Library "
+.TH "LIBUNWIND\-SETJMP" "3" "24 February 2012" "Programming Library " "Programming Library "
 .SH NAME
 libunwind\-setjmp
 \-\- libunwind\-based non\-local gotos 
