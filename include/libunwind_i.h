@@ -284,6 +284,10 @@ do {									\
 # define Dprintf(format...)
 #endif
 
+#include <android/log.h>
+#define Dprintf(format...) __android_log_print(ANDROID_LOG_INFO, "libunwind", format)
+#define Debug(level,format...) Dprintf(format)
+
 static ALWAYS_INLINE int
 print_error (const char *string)
 {
