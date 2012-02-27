@@ -263,6 +263,12 @@ extern pthread_mutex_t _U_dyn_info_list_lock;
 extern long unwi_debug_level;
 
 # include <stdio.h>
+
+#ifdef HAVE_ANDROID_LOG_H
+#include <android/log.h>
+#define Dprintf(format...) __android_log_print(ANDROID_LOG_INFO, "libunwind", format)
+#define Debug(level,format...) Dprintf(format)
+#else
 # define Debug(level,format...)						\
 do {									\
   if (unwi_debug_level >= level)					\
@@ -275,6 +281,7 @@ do {									\
     }									\
 } while (0)
 # define Dprintf(format...) 	    fprintf (stderr, format)
+#endif
 # ifdef __GNUC__
 #  undef inline
 #  define inline	UNUSED
@@ -283,10 +290,6 @@ do {									\
 # define Debug(level,format...)
 # define Dprintf(format...)
 #endif
-
-#include <android/log.h>
-#define Dprintf(format...) __android_log_print(ANDROID_LOG_INFO, "libunwind", format)
-#define Debug(level,format...) Dprintf(format)
 
 static ALWAYS_INLINE int
 print_error (const char *string)
