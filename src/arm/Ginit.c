@@ -26,6 +26,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.  */
 #include <string.h>
 
 #include "unwind_i.h"
+#include "libunwind-ptrace.h"
 
 #ifdef UNW_REMOTE_ONLY
 
@@ -166,7 +167,7 @@ arm_local_addr_space_init (void)
 {
   memset (&local_addr_space, 0, sizeof (local_addr_space));
   local_addr_space.caching_policy = UNW_CACHE_GLOBAL;
-  local_addr_space.acc.find_proc_info = arm_find_proc_info;
+  local_addr_space.acc.find_proc_info = _UPT_find_proc_info;
   local_addr_space.acc.put_unwind_info = arm_put_unwind_info;
   local_addr_space.acc.get_dyn_info_list_addr = get_dyn_info_list_addr;
   local_addr_space.acc.access_mem = access_mem;
