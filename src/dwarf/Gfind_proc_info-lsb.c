@@ -36,6 +36,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.  */
 #include "dwarf_i.h"
 #include "dwarf-eh.h"
 #include "libunwind_i.h"
+#include "os-linux.h"
 
 struct table_entry
   {
@@ -108,7 +109,7 @@ load_debug_frame (const char *file, char **buf, size_t *bufsize, int is_local)
   *buf = NULL;
   *bufsize = 0;
   
-  f = fopen (file, "r");
+  f = fopen_ashmem (file, "r");
   
   if (!f)
     return 1;
