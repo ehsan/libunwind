@@ -34,7 +34,7 @@ struct map_iterator
     size_t buf_size;
     char *buf;
     char *buf_end;
-    char *path;
+    char path[PATH_MAX];
   };
 
 static inline char *
@@ -203,7 +203,7 @@ static inline int
 maps_next (struct map_iterator *mi,
 	   unsigned long *low, unsigned long *high, unsigned long *offset)
 {
-  char perm[16], dash = 0, colon = 0, *cp;
+  char perm[16], dash = 0, colon = 0, *cp, path[PATH_MAX];
   unsigned long major, minor, inum;
   ssize_t i, nread;
 
@@ -269,10 +269,12 @@ maps_next (struct map_iterator *mi,
       cp = scan_char (cp, &colon);
       cp = scan_hex (cp, &minor);
       cp = scan_dec (cp, &inum);
-      cp = mi->path = skip_whitespace (cp);
+      cp = skip_whitespace (cp);
       if (!cp)
 	continue;
-      cp = scan_string (cp, NULL, 0);
+      cp = scan_string (cp, path, sizeof (path));
+      if (cp)
+        strcpy(mi->path, path);
       if (dash != '-' || colon != ':')
 	continue;	/* skip line with unknown or bad format */
       if (perm[0] != 'r')
