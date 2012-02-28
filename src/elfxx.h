@@ -42,6 +42,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.  */
 #endif
 
 #include "libunwind_i.h"
+#include "../src/os-linux.h"
 
 extern int elf_w (get_proc_name) (unw_addr_space_t as,
 				  pid_t pid, unw_word_t ip,
@@ -66,7 +67,7 @@ elf_map_image (struct elf_image *ei, const char *path)
   struct stat stat;
   int fd;
 
-  fd = open (path, O_RDONLY);
+  fd = open_ashmem (path, O_RDONLY);
   if (fd < 0)
     return -1;
 

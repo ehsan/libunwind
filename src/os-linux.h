@@ -324,4 +324,21 @@ fopen_ashmem (const char* path, const char* mode)
   return fopen(path, mode);
 }
 
+static inline int
+open_ashmem(const char* path, int flags)
+{
+#ifdef HAVE_LINUX_ASHMEM_H
+  if (strstr(path, "/" ASHMEM_NAME_DEF) == path) {
+    const char* shmemName = path + sizeof("/" ASHMEM_NAME_DEF);
+
+    int fd = open("/" ASHMEM_NAME_DEF, flags);
+    if (fd < 0)
+      return 0;
+    ioctl(fd, ASHMEM_SET_NAME, shmemName);
+    return fd;
+  }
+#endif
+  return open(path, flags);
+}
+
 #endif /* os_linux_h */
