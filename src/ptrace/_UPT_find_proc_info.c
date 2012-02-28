@@ -154,11 +154,11 @@ _UPTi_find_unwind_table (struct UPT_info *ui, unw_addr_space_t as,
 
 /* We need our own instance of dwarf_read_encoded_pointer() here since
    the one in dwarf/Gpe.c is not (and should not be) exported.  */
-int
-dwarf_read_encoded_pointer (unw_addr_space_t as, unw_accessors_t *a,
-			    unw_word_t *addr, unsigned char encoding,
-			    const unw_proc_info_t *pi,
-			    unw_word_t *valp, void *arg)
+HIDDEN int
+_UPTi_dwarf_read_encoded_pointer (unw_addr_space_t as, unw_accessors_t *a,
+				  unw_word_t *addr, unsigned char encoding,
+				  const unw_proc_info_t *pi,
+				  unw_word_t *valp, void *arg)
 {
   return dwarf_read_encoded_pointer_inlined (as, a, addr, encoding,
 					     pi, valp, arg);
@@ -278,15 +278,15 @@ _UPTi_find_unwind_table (struct UPT_info *ui, unw_addr_space_t as,
       pi.gp = ui->di_cache.gp;
 
       /* (Optionally) read eh_frame_ptr: */
-      if ((ret = dwarf_read_encoded_pointer (unw_local_addr_space, a,
-					     &addr, hdr->eh_frame_ptr_enc, &pi,
-					     &eh_frame_start, NULL)) < 0)
+      if ((ret = _UPTi_dwarf_read_encoded_pointer (unw_local_addr_space, a,
+						   &addr, hdr->eh_frame_ptr_enc, &pi,
+						   &eh_frame_start, NULL)) < 0)
 	return -UNW_ENOINFO;
 
       /* (Optionally) read fde_count: */
-      if ((ret = dwarf_read_encoded_pointer (unw_local_addr_space, a,
-					     &addr, hdr->fde_count_enc, &pi,
-					     &fde_count, NULL)) < 0)
+      if ((ret = _UPTi_dwarf_read_encoded_pointer (unw_local_addr_space, a,
+						   &addr, hdr->fde_count_enc, &pi,
+						   &fde_count, NULL)) < 0)
 	return -UNW_ENOINFO;
 
       if (hdr->table_enc != (DW_EH_PE_datarel | DW_EH_PE_sdata4))
