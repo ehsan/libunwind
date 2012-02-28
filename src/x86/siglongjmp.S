@@ -83,8 +83,6 @@ _UI_siglongjmp_cont:
 	popl	%eax
 	popl	%edx
 	jmp	*%edx
-#else
-#error Port me
 #endif
 	.cfi_endproc
 	.size _UI_siglongjmp_cont, .-_UI_siglongjmp_cont
