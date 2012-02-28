@@ -8,7 +8,7 @@ COMMON_SO_LDFLAGS =	-XCClinker -nostartfiles
 lib_LIBRARIES =
 lib_LTLIBRARIES =
 if !REMOTE_ONLY
-lib_LIBRARIES += libunwind-ptrace.a
+lib_LTLIBRARIES += libunwind-ptrace.la
 lib_LTLIBRARIES += libunwind.la
 endif
 
@@ -16,7 +16,11 @@ noinst_HEADERS =
 noinst_LTLIBRARIES =
 
 ### libunwind-ptrace:
-libunwind_ptrace_a_SOURCES =						  \
+libunwind_ptrace_la_LIBADD		= $(LIBUNWIND_ELF)	\
+					  libunwind-$(arch).la	\
+					  libunwind.la -lc
+
+libunwind_ptrace_la_SOURCES =						  \
 	ptrace/_UPT_elf.c						  \
 	ptrace/_UPT_accessors.c ptrace/_UPT_access_fpreg.c		  \
 	ptrace/_UPT_access_mem.c ptrace/_UPT_access_reg.c		  \
