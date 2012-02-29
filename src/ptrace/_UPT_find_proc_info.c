@@ -202,7 +202,11 @@ _UPTi_find_unwind_table (struct UPT_info *ui, unw_addr_space_t as,
 	  if (phdr[i].p_vaddr + phdr[i].p_memsz > end_ip)
 	    end_ip = phdr[i].p_vaddr + phdr[i].p_memsz;
 
-	  if (phdr[i].p_offset == mapoff)
+          // This doesn't really make sense since the offset might be
+          // before the mapped section.  Note that we may also want to
+          // take the size of the segment into account.
+	  // if (phdr[i].p_offset == mapoff)
+          if (phdr[i].p_offset >= mapoff)
 	    ptxt = phdr + i;
 	  if ((uintptr_t) ui->ei.image + phdr->p_filesz > max_load_addr)
 	    max_load_addr = (uintptr_t) ui->ei.image + phdr->p_filesz;
