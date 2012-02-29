@@ -61,7 +61,7 @@ dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info, size_t size, void *
   Elf_W(Phdr) *phdr = (Elf_W(Phdr) *) ((char *) ei.image + ehdr->e_phoff);
   info.dlpi_phdr = phdr;
   info.dlpi_phnum = ehdr->e_phnum;
-  callback(&info, sizeof(info), data);
+  rc = callback(&info, sizeof(info), data);
 
 
   }
