@@ -308,13 +308,7 @@ fopen_ashmem (const char* path, const char* mode)
 #ifdef HAVE_LINUX_ASHMEM_H
   if (strstr(path, "/" ASHMEM_NAME_DEF) == path) {
     const char* shmemName = path + sizeof("/" ASHMEM_NAME_DEF);
-    int fd, shMode;
-
-    if (strstr(mode, "w"))
-      shMode = O_RDWR;
-    else
-      shMode = O_RDONLY;
-    fd = open("/" ASHMEM_NAME_DEF, shMode, 0600);
+    int fd = open("/" ASHMEM_NAME_DEF, O_RDWR);
     if (fd < 0)
       return 0;
     ioctl(fd, ASHMEM_SET_NAME, shmemName);
@@ -330,8 +324,7 @@ open_ashmem(const char* path, int flags)
 #ifdef HAVE_LINUX_ASHMEM_H
   if (strstr(path, "/" ASHMEM_NAME_DEF) == path) {
     const char* shmemName = path + sizeof("/" ASHMEM_NAME_DEF);
-
-    int fd = open("/" ASHMEM_NAME_DEF, flags);
+    int fd = open("/" ASHMEM_NAME_DEF, O_RDWR);
     if (fd < 0)
       return 0;
     ioctl(fd, ASHMEM_SET_NAME, shmemName);
