@@ -54,7 +54,7 @@ dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info, size_t size, void *
   ei.image = (void*)info.dlpi_addr;
   ei.size = hi - low;
 
-  if (!elf_w(valid_object) (&ei))
+  if (offset != 0 || !elf_w(valid_object) (&ei))
     continue;
 
   ehdr = ei.image;
