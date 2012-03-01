@@ -50,11 +50,19 @@ dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info, size_t size, void *
 
     Elf_W(Ehdr) *ehdr;
 
+  // We don't care about entries which have been mapped at anything except for the first segment
+  if (offset != 0)
+    continue;
+
+  // Look for .so in the file name as a poor means of detecting possible shared objects
+  if (!strstr(mi.path, ".so"))
+    continue;
+
   struct elf_image ei;
   ei.image = (void*)info.dlpi_addr;
   ei.size = hi - low;
 
-  if (offset != 0 || !elf_w(valid_object) (&ei))
+  if (!elf_w(valid_object) (&ei))
     continue;
 
   ehdr = ei.image;
