@@ -15,4 +15,3 @@ export LIBS="-lc -lgcc"
 ./configure -host=arm-eabi --enable-debug
 make -s
 cp src/.libs/libunwind-arm.a ../libunwind.a
-cp src/.libs/libunwind-ptrace.a ../libunwind-ptrace.a
