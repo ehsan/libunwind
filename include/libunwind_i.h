@@ -266,8 +266,17 @@ extern long unwi_debug_level;
 
 #ifdef HAVE_ANDROID_LOG_H
 #include <android/log.h>
+# define Debug(level,format...)						\
+do {									\
+  if (unwi_debug_level >= level)					\
+    {									\
+      int _n = level;							\
+      if (_n > 16)							\
+	_n = 16;							\
+      __android_log_print(ANDROID_LOG_INFO, "libunwind", format);	\
+    }									\
+} while (0)
 #define Dprintf(format...) __android_log_print(ANDROID_LOG_INFO, "libunwind", format)
-#define Debug(level,format...) Dprintf(format)
 #else
 # define Debug(level,format...)						\
 do {									\
