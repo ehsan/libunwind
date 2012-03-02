@@ -115,6 +115,7 @@ arm_exidx_apply_cmd (struct arm_exbuf_data *edata, struct dwarf_cursor *c)
       break;
     case ARM_EXIDX_CMD_REG_TO_SP:
       assert (edata->data < 16);
+      assert (edata->data != 13 && edata->data != 15);
       Debug (2, "vsp = r%d\n", edata->data);
       c->loc[UNW_ARM_R13] = c->loc[UNW_ARM_R0 + edata->data];
       dwarf_get (c, c->loc[UNW_ARM_R13], &c->cfa);
