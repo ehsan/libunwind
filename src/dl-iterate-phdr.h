@@ -1,6 +1,6 @@
 struct dl_phdr_info {
         Elf_W(Addr)        dlpi_addr;  /* Base address of object */
-        const char       *dlpi_name;  /* (Null-terminated) name of
+        /*const*/ char   *dlpi_name;  /* (Null-terminated) name of
                                          object */
         const Elf_W(Phdr) *dlpi_phdr;  /* Pointer to array of
                                          ELF program headers
