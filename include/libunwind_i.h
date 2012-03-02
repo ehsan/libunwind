@@ -276,7 +276,8 @@ do {									\
       __android_log_print(ANDROID_LOG_INFO, "libunwind", format);	\
     }									\
 } while (0)
-#define Dprintf(format...) __android_log_print(ANDROID_LOG_INFO, "libunwind", format)
+// __android_log_print is not signal-safe, so we can't just call it all the time
+#define Dprintf(format...) // __android_log_print(ANDROID_LOG_INFO, "libunwind", format)
 #else
 # define Debug(level,format...)						\
 do {									\
