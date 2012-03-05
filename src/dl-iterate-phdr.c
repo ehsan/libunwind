@@ -182,7 +182,7 @@ dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info, size_t size, void *
   if (!dl_info_cache && !dl_iterate_phdr_cache())
     return -1;
 
-  for (current = dl_info_cache; current->next; current = current->next) {
+  for (current = dl_info_cache; !rc && current->next; current = current->next) {
     rc = callback(&current->info, sizeof(current->info), data);
   }
 
