@@ -72,21 +72,121 @@ get_dyn_info_list_addr (unw_addr_space_t as, unw_word_t *dyn_info_list_addr,
   return 0;
 }
 
+static struct sigaction old_sigsegv_handler;
+static volatile int sigsegv_protection = 0;
+#define SIGSEGV_PROTECT 0x80000000
+#define SIGSEGV_RAISED  0x00000001
+
+#ifdef HAVE_ANDROID_LOG_H
+// Android runs a fairly new Linux kernel, so signal info is there,
+// but the C library doesn't have the structs defined.
+
+struct sigcontext {
+  uint32_t trap_no;
+  uint32_t error_code;
+  uint32_t oldmask;
+  uint32_t gregs[16];
+  uint32_t arm_cpsr;
+  uint32_t fault_address;
+};
+typedef uint32_t __sigset_t;
+typedef struct sigcontext mcontext_t;
+typedef struct ucontext {
+  uint32_t uc_flags;
+  struct ucontext* uc_link;
+  stack_t uc_stack;
+  mcontext_t uc_mcontext;
+  __sigset_t uc_sigmask;
+} ucontext_t;
+#endif
+
+#define PSR_J_BIT 0x01000000
+#define PSR_T_BIT 0x00000020
+#define PROCESSOR_MODE(x) (((x) & PSR_J_BIT) >> 23) | \
+                          (((x) & PSR_T_BIT) >> 5)
+
+static void
+sigsegv_protect ()
+{
+  sigsegv_protection = SIGSEGV_PROTECT;
+}
+
+static int
+sigsegv_raised ()
+{
+  int raised = (sigsegv_protection & SIGSEGV_RAISED) != 0;
+  sigsegv_protection = 0;
+  return raised;
+}
+
+static void
+sigsegv_handler (int sig, siginfo_t* si, void* arg)
+{
+  if (sigsegv_protection & SIGSEGV_PROTECT) {
+    sigsegv_protection |= SIGSEGV_RAISED;
+    ucontext_t* uc = (ucontext_t*) arg;
+    unw_word_t pc = uc->uc_mcontext.gregs[15];
+    switch (PROCESSOR_MODE(uc->uc_mcontext.arm_cpsr)) {
+      case 0: // ARM
+        pc += 4; // each instruction is 32 bits
+        break;
+      case 1: // Thumb
+        pc += 2; // each instruction is 16 bits
+        break;
+      case 2: // Jazelle
+      case 3: // ThumbEE
+        /* implement me! */
+        break;
+    }
+    // skip over the faulty instruction
+    uc->uc_mcontext.gregs[15] = pc;
+  } else {
+    if ((old_sigsegv_handler.sa_flags & SA_SIGINFO) &&
+        old_sigsegv_handler.sa_sigaction) {
+      old_sigsegv_handler.sa_sigaction (sig, si, arg);
+    } else if (old_sigsegv_handler.sa_handler) {
+      old_sigsegv_handler.sa_handler (sig);
+    }
+  }
+}
+
+static void
+install_sigsegv_handler ()
+{
+  struct sigaction sa;
+  sa.sa_flags = SA_RESTART | SA_SIGINFO;
+  sigemptyset (&sa.sa_mask);
+  sa.sa_sigaction = sigsegv_handler;
+  sigaction (SIGSEGV, &sa, &old_sigsegv_handler);
+}
+
 static int
 access_mem (unw_addr_space_t as, unw_word_t addr, unw_word_t *val, int write,
 	    void *arg)
 {
+  int valid_access;
+
   if (write)
     {
       Debug (16, "mem[%x] <- %x\n", addr, *val);
+
+      sigsegv_protect();
+
       *(unw_word_t *) addr = *val;
+
+      valid_access = !sigsegv_raised();
     }
   else
     {
+      sigsegv_protect();
+
       *val = *(unw_word_t *) addr;
+
+      valid_access = !sigsegv_raised();
+
       Debug (16, "mem[%x] -> %x\n", addr, *val);
     }
-  return 0;
+  return valid_access ? 0 : -UNW_EINVAL;
 }
 
 static int
@@ -175,6 +275,8 @@ arm_local_addr_space_init (void)
   local_addr_space.acc.resume = arm_local_resume;
   local_addr_space.acc.get_proc_name = get_static_proc_name;
   unw_flush_cache (&local_addr_space, 0, 0);
+
+  install_sigsegv_handler ();
 }
 
 #endif /* !UNW_REMOTE_ONLY */
