@@ -77,29 +77,6 @@ static volatile int sigsegv_protection = 0;
 #define SIGSEGV_PROTECT 0x80000000
 #define SIGSEGV_RAISED  0x00000001
 
-#ifdef HAVE_ANDROID_LOG_H
-// Android runs a fairly new Linux kernel, so signal info is there,
-// but the C library doesn't have the structs defined.
-
-struct sigcontext {
-  uint32_t trap_no;
-  uint32_t error_code;
-  uint32_t oldmask;
-  uint32_t gregs[16];
-  uint32_t arm_cpsr;
-  uint32_t fault_address;
-};
-typedef uint32_t __sigset_t;
-typedef struct sigcontext mcontext_t;
-typedef struct ucontext {
-  uint32_t uc_flags;
-  struct ucontext* uc_link;
-  stack_t uc_stack;
-  mcontext_t uc_mcontext;
-  __sigset_t uc_sigmask;
-} ucontext_t;
-#endif
-
 #define PSR_J_BIT 0x01000000
 #define PSR_T_BIT 0x00000020
 #define PROCESSOR_MODE(x) (((x) & PSR_J_BIT) >> 23) | \
@@ -125,7 +102,7 @@ sigsegv_handler (int sig, siginfo_t* si, void* arg)
   if (sigsegv_protection & SIGSEGV_PROTECT) {
     sigsegv_protection |= SIGSEGV_RAISED;
     ucontext_t* uc = (ucontext_t*) arg;
-    unw_word_t pc = uc->uc_mcontext.gregs[15];
+    unw_word_t pc = uc->uc_mcontext.arm_pc;
     switch (PROCESSOR_MODE(uc->uc_mcontext.arm_cpsr)) {
       case 0: // ARM
         pc += 4; // each instruction is 32 bits
@@ -139,7 +116,7 @@ sigsegv_handler (int sig, siginfo_t* si, void* arg)
         break;
     }
     // skip over the faulty instruction
-    uc->uc_mcontext.gregs[15] = pc;
+    uc->uc_mcontext.arm_pc = pc;
   } else {
     if ((old_sigsegv_handler.sa_flags & SA_SIGINFO) &&
         old_sigsegv_handler.sa_sigaction) {
