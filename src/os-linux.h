@@ -27,6 +27,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.  */
 #ifndef os_linux_h
 #define os_linux_h
 
+#include <limits.h>
+#include <stdio.h>
+
 struct map_iterator
   {
     off_t offset;
