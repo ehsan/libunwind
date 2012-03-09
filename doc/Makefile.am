@@ -49,23 +49,23 @@ EXTRA_DIST = NOTES libunwind.trans					\
 
 L2M	= latex2man
 L2P	= pdflatex
-L2M_CMD	= $(L2M) -t $(top_srcdir)/libunwind.trans
-L2H_CMD	= $(L2M) -H -t $(top_srcdir)/libunwind.trans
+L2M_CMD	= $(L2M) -t $(top_srcdir)/doc/libunwind.trans
+L2H_CMD	= $(L2M) -H -t $(top_srcdir)/doc/libunwind.trans
 
 .tex.man:
 	$(L2M_CMD) $< $@
-	-cp $@ $(top_srcdir)/$@
+	-cp $@ $(top_srcdir)/doc/$@
 
 html:
 	for n in $(man3_MANS); do					\
 		page=`basename $$n .man`;				\
-		$(L2H_CMD) $(top_srcdir)/$$page.tex "$$page(3).raw";	\
+		$(L2H_CMD) $(top_srcdir)/doc/$$page.tex "$$page(3).raw";\
 	done
 
 pdf:
 	for n in $(man3_MANS); do					\
 		page=`basename $$n .man`;				\
-		$(L2P) $(top_srcdir)/$$page.tex "$$page(3).pdf";		\
+		$(L2P) $(top_srcdir)/doc/$$page.tex "$$page(3).pdf";	\
 	done
 
 MAINTAINERCLEANFILES = Makefile.in
